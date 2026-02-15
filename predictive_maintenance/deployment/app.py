@@ -49,7 +49,11 @@ input_data = pd.DataFrame([{
 
 if st.button("Predict Engine Condition"):
 
-    prediction = model.predict(input_data)[0]
+    # Add missing column expected by model
+if "__index_level_0__" in model.feature_names_in_:
+    input_data["__index_level_0__"] = 0
+
+prediction = model.predict(input_data)[0]
 
     if prediction == 1:
         st.error("🚨 Engine Failure Likely. Immediate Maintenance Required!")
