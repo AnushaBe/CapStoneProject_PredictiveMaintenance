@@ -29,7 +29,7 @@ jobs:
       - name: Run Data Preparation
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python predictive_maintenance/model_building/prep.py
+        run: python predictive_maintenance/model_building/data_register.py
 
 
   model-traning:
