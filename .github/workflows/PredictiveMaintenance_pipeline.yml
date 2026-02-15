@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
-        run: pip install -r predictive_maintenance/requirements.txt
+        run: pip install -r predictive_maintenance/deployment/requirements.txt
       - name: Start MLflow Server
         run: |
           nohup mlflow ui --host 0.0.0.0 --port 5000 &  # Run MLflow UI in the background
@@ -46,7 +46,7 @@ jobs:
       - name: Model Building
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python predictive_maintenance/model_building/train.py
+        run: python predictive_maintenance/model_building/app.py
 
 
   deploy-hosting:
