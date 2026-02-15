@@ -1,68 +1,57 @@
+%%writefile predictive_maintenance/deployment/app.py
 import streamlit as st
 import pandas as pd
 from huggingface_hub import hf_hub_download
 import joblib
 
-# Download the model from the Model Hub
-model_path = hf_hub_download(repo_id="Anusha3/ab_predictive_maintenance", filename="Gradient_Boosting.joblib")
+# Download the model from Hugging Face
+model_path = hf_hub_download(
+    repo_id="Anusha3/ab_predictive_maintenance",
+    filename="Gradient_Boosting.joblib"
+)
 
-# Load the model
+# Load model
 model = joblib.load(model_path)
 
-# Streamlit UI for Predictive Maintence Prediction
+# Page config
 st.set_page_config(page_title="Predictive Maintenance - Engine Failure")
-st.title("Aircraft Engine Predictive Maintenance")
+st.title("Engine Predictive Maintenance System")
 
-st.write("Enter sensor readings below to predict engine failure probability.")
+st.write("Enter engine parameters below to predict engine condition.")
 
 # ----------------------------
-# Input Features (Based on Engine Dataset)
+# Input Features (MATCH TRAINING FEATURES EXACTLY)
 # ----------------------------
 
-operational_setting_1 = st.number_input("Operational Setting 1", value=0.0)
-operational_setting_2 = st.number_input("Operational Setting 2", value=0.0)
-operational_setting_3 = st.number_input("Operational Setting 3", value=0.0)
-
-sensor_1 = st.number_input("Sensor Measurement 1", value=0.0)
-sensor_2 = st.number_input("Sensor Measurement 2", value=0.0)
-sensor_3 = st.number_input("Sensor Measurement 3", value=0.0)
-sensor_4 = st.number_input("Sensor Measurement 4", value=0.0)
-sensor_5 = st.number_input("Sensor Measurement 5", value=0.0)
-sensor_6 = st.number_input("Sensor Measurement 6", value=0.0)
-sensor_7 = st.number_input("Sensor Measurement 7", value=0.0)
-sensor_8 = st.number_input("Sensor Measurement 8", value=0.0)
-sensor_9 = st.number_input("Sensor Measurement 9", value=0.0)
-sensor_10 = st.number_input("Sensor Measurement 10", value=0.0)
+engine_rpm = st.number_input("Engine RPM", value=1500)
+lub_oil_pressure = st.number_input("Lub Oil Pressure", value=3.0)
+fuel_pressure = st.number_input("Fuel Pressure", value=5.0)
+coolant_pressure = st.number_input("Coolant Pressure", value=2.0)
+lub_oil_temp = st.number_input("Lub Oil Temperature", value=80.0)
+coolant_temp = st.number_input("Coolant Temperature", value=75.0)
 
 # ----------------------------
 # Prepare Input DataFrame
 # ----------------------------
 
 input_data = pd.DataFrame([{
-    "operational_setting_1": operational_setting_1,
-    "operational_setting_2": operational_setting_2,
-    "operational_setting_3": operational_setting_3,
-    "sensor_1": sensor_1,
-    "sensor_2": sensor_2,
-    "sensor_3": sensor_3,
-    "sensor_4": sensor_4,
-    "sensor_5": sensor_5,
-    "sensor_6": sensor_6,
-    "sensor_7": sensor_7,
-    "sensor_8": sensor_8,
-    "sensor_9": sensor_9,
-    "sensor_10": sensor_10
+    "Engine rpm": engine_rpm,
+    "Lub oil pressure": lub_oil_pressure,
+    "Fuel pressure": fuel_pressure,
+    "Coolant pressure": coolant_pressure,
+    "lub oil temp": lub_oil_temp,
+    "Coolant temp": coolant_temp
 }])
 
 # ----------------------------
-# Prediction Section
+# Prediction
 # ----------------------------
 
-if st.button("Predict Engine Failure"):
+if st.button("Predict Engine Condition"):
 
     prediction = model.predict(input_data)[0]
 
     if prediction == 1:
-        st.error("🚨 High Risk: Engine Failure Likely. Immediate Maintenance Recommended.")
+        st.error("🚨 Engine Failure Likely. Immediate Maintenance Required!")
     else:
-        st.success("✅ Engine Operating Normally. No Immediate Maintenance Required.")
+        st.success("✅ Engine Operating Normally.")
