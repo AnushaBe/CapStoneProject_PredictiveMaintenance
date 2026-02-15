@@ -1,61 +1,68 @@
-name: Predictive_Maintenance Project Pipeline
+name: Predictive Maintenance CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main  # Automatically triggers on push to the main branch
+      - main
+  workflow_dispatch:
 
 jobs:
 
-  register-dataset:
+  build-train-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: <add_code_here>
-      - name: Upload Dataset to Hugging Face Hub
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: <add_code_here>
 
-  data-prep:
-    needs: register-dataset
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: <add_code_here>
-      - name: Run Data Preparation
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: <add_code_here>
 
+      # ---------------------------
+      # Step 1: Checkout Code
+      # ---------------------------
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-  model-traning:
-    needs: data-prep
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+      # ---------------------------
+      # Step 2: Setup Python
+      # ---------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # ---------------------------
+      # Step 3: Install Dependencies
+      # ---------------------------
       - name: Install Dependencies
-        run: <add_code_here>
-      - name: Start MLflow Server
         run: |
-          nohup mlflow ui --host 0.0.0.0 --port 5000 &  # Run MLflow UI in the background
-          sleep 5  # Wait for a moment to let the server starts
-      - name: Model Building
+          python -m pip install --upgrade pip
+          pip install -r predictive_maintenance/requirements.txt
+
+      # ---------------------------
+      # Step 4: Run Data Preprocessing
+      # ---------------------------
+      - name: Run Data Preparation
+        run: |
+          python predictive_maintenance/src/preprocess.py
+
+      # ---------------------------
+      # Step 5: Train Model
+      # ---------------------------
+      - name: Train Model
+        run: |
+          python predictive_maintenance/src/train.py
+
+      # ---------------------------
+      # Step 6: Upload Model to Hugging Face
+      # ---------------------------
+      - name: Upload Model
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: <add_code_here>
+        run: |
+          python predictive_maintenance/hosting/upload_model.py
 
-
-  deploy-hosting:
-    runs-on: ubuntu-latest
-    needs: [model-traning,data-prep,register-dataset]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: <add_code_here>
-      - name: Push files to Frontend Hugging Face Space
+      # ---------------------------
+      # Step 7: Deploy to Hugging Face Space
+      # ---------------------------
+      - name: Deploy to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: <add_code_here>
+        run: |
+          python predictive_maintenance/hosting/hosting.py
