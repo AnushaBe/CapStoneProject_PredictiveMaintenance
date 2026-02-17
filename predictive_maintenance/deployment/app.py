@@ -1,4 +1,3 @@
-%%writefile predictive_maintenance/deployment/app.py
 import streamlit as st
 import pandas as pd
 from huggingface_hub import hf_hub_download
@@ -49,9 +48,7 @@ input_data = pd.DataFrame([{
 
 if st.button("Predict Engine Condition"):
 
-prediction = model.predict(input_data)[0]
-
-prediction = model.predict(input_data)[0]
+    prediction = model.predict(input_data)[0]
 
     if prediction == 1:
         st.error("🚨 Engine Failure Likely. Immediate Maintenance Required!")
